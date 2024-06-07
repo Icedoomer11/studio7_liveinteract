@@ -63,12 +63,12 @@ function drawShutter(cx, cy, radius, innerRadius) {
 }
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(1920, 1080);
   pixelDensity(1);
   
   // Capture video feed
   video = createCapture(VIDEO);
-  video.size(20, 20);
+  video.size(32, 18);
   video.hide(); // Hide the original video feed
 
   bgc = color(20);
@@ -95,10 +95,9 @@ function draw() {
   
   background(bgc);
   
-  //for (let x = 0; x < video.width; x++) {
-  for (let x = video.width - 1; x >= 0; x--) { // Reversed loop for x-axis  
+  for (let x = 0; x < video.width; x++) {
     for (let y = 0; y < video.height; y++) {
-      let index = (x + y * video.width) * 4;
+      let index = ((video.width - x - 1) + y * video.width) * 4;
       
       let r = video.pixels[index + 0];
       let g = video.pixels[index + 1];
