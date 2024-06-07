@@ -8,8 +8,18 @@ let bgc;
 let video;
 let innerRadiusSlider;
 let myColors = [];
+let clampToggle = true; // Initial state of clamping
+let toggleButton;
+
+// Clamp function to restrict a value within a specified range
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
 
 function drawShutter(cx, cy, radius, innerRadius) {
+  // Ensure innerRadius is clamped within the range [0, radius - 2]
+  innerRadius = clamp(innerRadius, 0, radius - 2);
+
   // Calculate hexagon vertices
   let hexagonVertices = [];
   for (let i = 0; i < 6; i++) {
@@ -63,7 +73,7 @@ function drawShutter(cx, cy, radius, innerRadius) {
 }
 
 function setup() {
-  createCanvas(1920, 1080);
+  createCanvas(1540, 800);
   pixelDensity(1);
   
   // Capture video feed
@@ -79,15 +89,23 @@ function setup() {
   let c5 = color('#f99c05');
   let c6 = color('#d83907');
   myColors = [c1, c2, c3, c4, c5, c6];
+
   innerRadiusSlider = createSlider(0, 100, innerRadius);
   innerRadiusSlider.position(10, height + 30);
   innerRadiusSlider.style('width', '200px');
-  frameRate(24);
+
+  // Create toggle button
+  toggleButton = createButton('Toggle feed');
+  toggleButton.position(10, height + 60);
+  toggleButton.mousePressed(toggleClamp);
+
+  frameRate(30);
 }
 
 function draw() {
   // Get the value of the inner radius slider
-  let mappedInnerRadius = map(innerRadiusSlider.value(), 0, 100, 0, radius);
+  let mappedValue = map(innerRadiusSlider.value(), 0, 10, 0, 2);
+  contrast = mappedValue;
   
   video.loadPixels();
   let w = width / video.width;
@@ -113,13 +131,21 @@ function draw() {
       
       noStroke();
       rectMode(CENTER);
-      
-      // Check normal
-      // fill(brightness);
-      // rect(x * w, y * h, w, h);
+
+      if (!clampToggle) {
+        rectMode(CENTER);
+        fill(brightness);
+        rect(x * w, y * h, w, h);
+      }
       
       // Alex filter
-      drawShutter(x * w + w / 2, y * h + h / 2, w / 3, v);
+      if (clampToggle) {
+        drawShutter(x * w + w / 2, y * h + h / 2, w / 3, v);
+      }
     }
   }
+}
+
+function toggleClamp() {
+  clampToggle = !clampToggle;
 }
